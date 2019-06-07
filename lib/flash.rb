@@ -16,7 +16,7 @@ class Flash
       cookie_val = JSON.parse(cookie)
       return cookie_val[key.to_s]
     end
-    flash.key?(key.to_s) ? flash[key.to_s] : temp[key.to_s]
+    flash[key.to_s] || temp[key.to_s]
   end
 
   def []=(key, value)

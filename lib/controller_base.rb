@@ -14,6 +14,7 @@ class ControllerBase
     @params = req.params.merge(route_params)
     @already_built_response = false
     @flash = Flash.new(req)
+    flash.store_flash(res) # clear existing cookie if there is one
   end
 
   # Helper method to alias @already_built_response
@@ -24,6 +25,7 @@ class ControllerBase
   # Set the response status code and header
   def redirect_to(url)
     raise 'Already responded' if already_built_response?
+    flash.store_flash(res)
     res['Location'] = url
     res.status = 302
     @already_built_response = true
@@ -35,6 +37,7 @@ class ControllerBase
   # Raise an error if the developer tries to double render.
   def render_content(content, content_type)
     raise 'Already responded' if already_built_response?
+    
     res['Content-Type'] = content_type
     res.write(content)
     @already_built_response = true
@@ -46,6 +49,7 @@ class ControllerBase
   def render(template_name)
     path = File.join('views', self.class.name.underscore, "#{template_name}.html.erb")
     file = File.read(path)
+    @flash = flash.now unless flash.now.empty?
     render_content(ERB.new(file).result(binding), 'text/html')
   end
 
