@@ -11,15 +11,16 @@ describe ControllerBase do
     it 'adds new cookie with \'authenticity_token\' name to response' do
       controller_base.form_authenticity_token
       cookie_str = res.headers['Set-Cookie']
-      cookie = Rack::Utils.parse_query(cookie_str)
+      # parse-query doesn't parse newlines and therefore can't detect cookie
+      cookie = Rack::Utils.parse_query(cookie_str.split("\n").join('&'))
       expect(cookie['authenticity_token']).not_to be_nil
     end
 
     it 'returns the same token set in the cookie' do
       token = controller_base.form_authenticity_token
       cookie_str = res.headers['Set-Cookie']
-      cookie = Rack::Utils.parse_query(cookie_str)
-
+      # cookie = Rack::Utils.parse_query(cookie_str)
+      cookie = Rack::Utils.parse_query(cookie_str.split("\n").join('&'))
       expect(cookie['authenticity_token']).to eq(token)
     end
 
